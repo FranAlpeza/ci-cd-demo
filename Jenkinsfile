@@ -1,6 +1,6 @@
 // Deklarativni Jenkins pipeline (Windows okruzenje)
 // Definira faze CI/CD procesa: dohvat koda, instalacija ovisnosti,
-// izvodenje testova te osnovni proces isporuke.
+// izvodenje testova te isporuka aplikacije sa smoke testom.
 
 pipeline {
     agent any
@@ -42,15 +42,16 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                // Osnovni proces isporuke (prosirit cemo u Fazi D)
-                echo 'Isporuka aplikacije...'
+                // Isporuka aplikacije: pokretanje kao samostalan proces
+                // na portu 5001 te smoke test provjerom /health endpointa
+                bat 'venv\\Scripts\\python.exe deploy.py'
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline uspjesno zavrsen!'
+            echo 'Pipeline uspjesno zavrsen! Aplikacija je isporucena na portu 5001.'
         }
         failure {
             echo 'Pipeline neuspjesan - provjerite greske.'
