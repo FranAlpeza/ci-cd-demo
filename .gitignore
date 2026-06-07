@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtualno okruzenje
+venv/
+env/
+.venv/
+
+# pytest
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
