@@ -1,8 +1,14 @@
-// Deklarativni Jenkins pipeline
-// Definira faze CI/CD procesa: dohvat koda, instalacija, testiranje i isporuka.
+// Deklarativni Jenkins pipeline (Windows okruzenje)
+// Definira faze CI/CD procesa: dohvat koda, instalacija ovisnosti,
+// izvodenje testova te osnovni proces isporuke.
 
 pipeline {
     agent any
+
+    environment {
+        // Putanja do Python interpretera na sustavu
+        PYTHON = 'C:\\Users\\Fran\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
+    }
 
     stages {
         stage('Checkout') {
@@ -14,15 +20,17 @@ pipeline {
 
         stage('Install') {
             steps {
-                // Instalacija ovisnosti aplikacije
-                sh 'pip install -r requirements.txt'
+                // Kreiranje virtualnog okruzenja i instalacija ovisnosti
+                bat '"%PYTHON%" -m venv venv'
+                bat 'venv\\Scripts\\python.exe -m pip install --upgrade pip'
+                bat 'venv\\Scripts\\pip.exe install -r requirements.txt'
             }
         }
 
         stage('Test') {
             steps {
-                // Izvodenje automatiziranih testova
-                sh 'pytest --junitxml=rezultati.xml'
+                // Izvodenje automatiziranih testova uz generiranje izvjestaja
+                bat 'venv\\Scripts\\pytest.exe --junitxml=rezultati.xml'
             }
             post {
                 always {
@@ -34,7 +42,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                // Osnovni proces isporuke (placeholder - prosirit cemo u Fazi D)
+                // Osnovni proces isporuke (prosirit cemo u Fazi D)
                 echo 'Isporuka aplikacije...'
             }
         }
