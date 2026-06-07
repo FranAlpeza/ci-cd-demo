@@ -6,7 +6,7 @@ Izdvojene su u zaseban modul kako bi se mogle jednostavno testirati.
 
 def zbroji(a, b):
     """Vraca zbroj dvaju brojeva."""
-    return a + b
+    return a - b
 
 
 def je_paran(broj):
