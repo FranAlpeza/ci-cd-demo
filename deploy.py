@@ -42,11 +42,18 @@ def pokreni_aplikaciju():
     okruzenje = os.environ.copy()
     okruzenje["PORT"] = str(PORT)
 
-    # DETACHED_PROCESS (0x00000008) - proces nastavlja raditi nakon zavrsetka builda
+    # Uklanjanje Jenkins varijabli okruzenja kojima ProcessTreeKiller
+    # prepoznaje i zaustavlja procese pokrenute tijekom builda.
+    # Bez njih aplikacija nastavlja raditi i nakon zavrsetka pipelinea.
+    for varijabla in ("JENKINS_NODE_COOKIE", "JENKINS_SERVER_COOKIE", "BUILD_ID", "HUDSON_COOKIE"):
+        okruzenje.pop(varijabla, None)
+
+    # DETACHED_PROCESS (0x00000008) + CREATE_NEW_PROCESS_GROUP (0x00000200)
+    # cine proces samostalnim i neovisnim o procesu koji ga je pokrenuo.
     proces = subprocess.Popen(
         [python_exe, "app.py"],
         env=okruzenje,
-        creationflags=0x00000008,
+        creationflags=0x00000008 | 0x00000200,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL
     )
