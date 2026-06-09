@@ -1,11 +1,3 @@
-"""
-Skripta za isporuku (deploy) aplikacije.
-Pokrece Flask aplikaciju kao samostalan pozadinski proces na portu 5001
-te provjerava radi li aplikacija pozivom na /health endpoint (smoke test).
-
-Koristi se u Deploy fazi Jenkins pipelinea.
-"""
-
 import subprocess
 import sys
 import time
@@ -18,13 +10,11 @@ PID_DATOTEKA = "deploy_pid.txt"
 
 
 def zaustavi_prethodnu_instancu():
-    """Zaustavlja prethodno pokrenutu instancu aplikacije ako postoji."""
     if os.path.exists(PID_DATOTEKA):
         try:
             with open(PID_DATOTEKA, "r") as f:
                 stari_pid = f.read().strip()
             if stari_pid:
-                # Windows naredba za zaustavljanje procesa prema PID-u
                 subprocess.run(
                     ["taskkill", "/F", "/PID", stari_pid],
                     capture_output=True
@@ -35,21 +25,14 @@ def zaustavi_prethodnu_instancu():
 
 
 def pokreni_aplikaciju():
-    """Pokrece aplikaciju kao samostalan proces neovisan o Jenkinsu."""
     python_exe = os.path.join("venv", "Scripts", "python.exe")
 
-    # Postavljanje porta preko varijable okruzenja
     okruzenje = os.environ.copy()
     okruzenje["PORT"] = str(PORT)
 
-    # Uklanjanje Jenkins varijabli okruzenja kojima ProcessTreeKiller
-    # prepoznaje i zaustavlja procese pokrenute tijekom builda.
-    # Bez njih aplikacija nastavlja raditi i nakon zavrsetka pipelinea.
     for varijabla in ("JENKINS_NODE_COOKIE", "JENKINS_SERVER_COOKIE", "BUILD_ID", "HUDSON_COOKIE"):
         okruzenje.pop(varijabla, None)
 
-    # DETACHED_PROCESS (0x00000008) + CREATE_NEW_PROCESS_GROUP (0x00000200)
-    # cine proces samostalnim i neovisnim o procesu koji ga je pokrenuo.
     proces = subprocess.Popen(
         [python_exe, "app.py"],
         env=okruzenje,
@@ -58,7 +41,6 @@ def pokreni_aplikaciju():
         stderr=subprocess.DEVNULL
     )
 
-    # Spremanje PID-a za buduce zaustavljanje
     with open(PID_DATOTEKA, "w") as f:
         f.write(str(proces.pid))
 
@@ -67,7 +49,6 @@ def pokreni_aplikaciju():
 
 
 def provjeri_zdravlje():
-    """Smoke test - provjerava odgovara li aplikacija na /health."""
     print("Cekanje da se aplikacija pokrene...")
     for pokusaj in range(1, 11):
         try:

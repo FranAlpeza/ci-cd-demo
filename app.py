@@ -1,17 +1,8 @@
-"""
-Jednostavna web aplikacija izradena u Flask okviru.
-Sluzi kao demonstracijski objekt za implementaciju CI/CD procesa.
-
-Zavrsni rad - Implementacija CI/CD procesa u razvoju web aplikacije
-Fran Alpeza, Veleuciliste Velika Gorica
-"""
-
 from flask import Flask, jsonify, request
 from utils import formatiraj_pozdrav, zbroji
 
 app = Flask(__name__)
 
-# HTML pocetne stranice (jednostavan prikaz)
 POCETNA_HTML = """
 <!DOCTYPE html>
 <html lang="hr">
@@ -42,26 +33,22 @@ POCETNA_HTML = """
 
 @app.route("/")
 def pocetna():
-    """Pocetna stranica aplikacije."""
     return POCETNA_HTML
 
 
 @app.route("/health")
 def health():
-    """Endpoint za provjeru zdravlja aplikacije (koristi se u CI/CD pipelinu)."""
     return jsonify({"status": "ok"})
 
 
 @app.route("/pozdrav")
 def pozdrav():
-    """Vraca personaliziranu poruku pozdrava na temelju parametra 'ime'."""
     ime = request.args.get("ime", "")
     return jsonify({"poruka": formatiraj_pozdrav(ime)})
 
 
 @app.route("/zbroj")
 def zbroj():
-    """Vraca zbroj dvaju brojeva zadanih kao parametri 'a' i 'b'."""
     try:
         a = float(request.args.get("a", 0))
         b = float(request.args.get("b", 0))
@@ -71,8 +58,6 @@ def zbroj():
 
 
 if __name__ == "__main__":
-    # Port se cita iz varijable okruzenja (zadana vrijednost 5000).
-    # Deploy skripta postavlja PORT=5001 za isporucenu instancu.
     import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
